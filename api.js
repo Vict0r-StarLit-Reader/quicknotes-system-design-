@@ -1,31 +1,38 @@
-const API_URL = "https://jsonplaceholder.typicode.com/posts";
+// (Keep previous GET code above, and append below)
 
-const loadBtn = document.getElementById("load-btn");
-const statusEl = document.getElementById("status");
-const notesList = document.getElementById("notes-list");
+const noteForm = document.getElementById("note-form");
+const titleInput = document.getElementById("title-input");
+const bodyInput = document.getElementById("body-input");
+const submitBtn = document.getElementById("submit-btn");
 
-async function request(url, options = {}) {
-    const response = await fetch(url, options);
-    if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
-    return await response.json();
-}
+noteForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const title = titleInput.value.trim();
+    const body = bodyInput.value.trim();
 
-loadBtn.addEventListener("click", async () => {
-    loadBtn.disabled = true;
-    statusEl.textContent = "Loading notes...";
-    notesList.innerHTML = "";
+    if (!title || title.length > 100) {
+        alert("Title is required and must be under 100 characters.");
+        return;
+    }
+
+    submitBtn.disabled = true;
 
     try {
-        const notes = await request(`${API_URL}?_limit=10`);
-        notes.forEach(note => {
-            const li = document.createElement("li");
-            li.textContent = note.title;
-            notesList.appendChild(li);
+        const newNote = await request(API_URL, {
+            method: "POST",
+            headers: { "Content-Type": "application/json; charset=UTF-8" },
+            body: JSON.stringify({ title, body, userId: 1 })
         });
-        statusEl.textContent = "Loaded 10 notes from the server.";
+
+        const li = document.createElement("li");
+        li.textContent = newNote.title;
+        notesList.prepend(li);
+
+        statusEl.textContent = `Note created (status 201, id ${newNote.id}).`;
+        noteForm.reset();
     } catch (error) {
-        statusEl.textContent = "Failed to load notes.";
+        statusEl.textContent = "Failed to create note.";
     } finally {
-        loadBtn.disabled = false;
+        submitBtn.disabled = false;
     }
 });
