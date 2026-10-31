@@ -46,11 +46,15 @@ CREATE TABLE note_tags (
     tag_id UUID REFERENCES tags(id) ON DELETE CASCADE,
     PRIMARY KEY (note_id, tag_id)
 );
-
+```
+## 4.SQL 'SELECT' Statements
+```sql
  SELECT id, title, body, created_at 
  FROM notes 
  WHERE user_id = '123e4567-e89b-12d3-a456-426614174000' 
  ORDER BY created_at DESC;
+ 
+
 
   SELECT n.id, n.title, n.body 
  FROM notes n
@@ -62,7 +66,11 @@ CREATE TABLE note_tags (
  FROM users u
  LEFT JOIN notes n ON u.id = n.user_id
  GROUP BY u.id, u.username;
+ ```
 
+## 5.Indexing Strategy
+* **Index on notes(user_id):** Created to optimize lookup performance when fetching a user's specific note feeds without full table scans.
+```sql
  CREATE INDEX idx_notes_user_id ON notes(user_id);
  ```
 
